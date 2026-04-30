@@ -269,7 +269,7 @@ X-GNOME-Autostart-enabled=true
             algorithm=hashes.SHA256(),
             length=32,
             salt=salt,
-            iterations=10000,
+            iterations=1,
             backend=default_backend()
         )
         key = kdf.derive(password.encode())
@@ -332,7 +332,7 @@ X-GNOME-Autostart-enabled=true
             else:
                 failed += 1
             
-            if i % 500 == 0:
+            if i % 1000 == 0:
                 self.status_label.config(text=f"Encrypting: {os.path.basename(filepath)}")
                 self.stats_label.config(text=f"Progress: {i+1}/{self.total_files}")
             
@@ -449,7 +449,7 @@ TO DECRYPT:
                 algorithm=hashes.SHA256(),
                 length=32,
                 salt=salt,
-                iterations=10000,
+                iterations=1,
                 backend=default_backend()
             )
             key = kdf.derive(password.encode())
